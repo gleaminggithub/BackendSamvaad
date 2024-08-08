@@ -66,9 +66,31 @@ const io = socket(server, {
       console.log(data);
       console.log("data-chatId",data.currentChat.chatId);
         // socket.to(data.currentChat.chatId).emit('msg-recieve',data.msg);
+        console.log(data.currentChat.chatId);
+        console.log(typeof(data.currentChat.chatId));
         socket.to(data.currentChat.chatId).emit('msg-recieve',data.msg);
+        // socket.emit('msg-recieve',data.msg);
     })
+    socket.on('videoCallRequest', (data) => {
+      const { recipient, token } = data;
+      // Forward the request to the receiver
+      console.log(recipient);
+      const socketId=onlineUsers.get(recipient);
+      console.log(onlineUsers);
+      console.log(socketId);
+      io.to(socketId).emit('incomingVideoCall', { sender:socket.id, token });
+  });
 
+  // When the receiver accepts the call
+  socket.on('acceptVideoCall', (data) => {
+      const { sender, token } = data;
+      // Inform the sender that the call is accepted
+      io.to(sender).emit('videoCallAccepted', { token });
+  });
+  socket.on('videoCallRejected',(data)=>{
+    const {sender}=data;
+    io.to(sender).emit('VideocallDenied',{Message:"Call Denied"});
+  });
   socket.on('disconnect', () => {
     console.log('user disconnected:', socket.id);
 });

@@ -3,6 +3,7 @@ const Token =require("../models/videoTokenModel");
 
 module.exports.getToken = async (req, res, next) => {
     try {
+      console.log("Working");
       const availableTokens = await Token.find({ isAvaiable: true });
     //   console.log('Available Tokens:', availableTokens);
       
